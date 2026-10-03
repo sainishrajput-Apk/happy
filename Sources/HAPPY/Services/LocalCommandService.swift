@@ -104,6 +104,23 @@ struct LocalCommandService: AIService {
                     } catch {
                         continuation.yield("I couldn't clear memory: \(error.localizedDescription)")
                     }
+                case .rememberClipboard:
+                    let clip = await MainActor.run {
+                        NSPasteboard.general.string(forType: .string)?
+                            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    }
+                    if clip.isEmpty {
+                        continuation.yield("Your clipboard is empty. Copy some text first, then say \"remember my clipboard\".")
+                    } else {
+                        let kept = String(clip.prefix(6000))
+                        do {
+                            try memory.append("Saved from clipboard:\n" + kept)
+                            let note = clip.count > kept.count ? " The end was cut off because it was longer than 6000 characters." : ""
+                            continuation.yield("Saved \(kept.count) characters to memory." + note)
+                        } catch {
+                            continuation.yield("I couldn't save that: \(error.localizedDescription)")
+                        }
+                    }
                 case .openApp(let name):
                     let opened = await AppLauncher.open(name)
                     continuation.yield(opened ? "Opening \(name)." : "I couldn't find an app named \"\(name)\".")

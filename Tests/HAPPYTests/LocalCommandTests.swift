@@ -42,6 +42,11 @@ final class LocalCommandTests: XCTestCase {
         XCTAssertNil(LocalCommand.parse("what is love"))
     }
 
+    func testRememberClipboardPhrases() {
+        XCTAssertEqual(LocalCommand.parse("remember my clipboard"), .rememberClipboard)
+        XCTAssertEqual(LocalCommand.parse("Save my clipboard to memory!"), .rememberClipboard)
+    }
+
     func testNormalQuestionPassesThrough() {
         XCTAssertNil(LocalCommand.parse("what is the capital of France"))
         XCTAssertNil(LocalCommand.parse("explain recursion"))

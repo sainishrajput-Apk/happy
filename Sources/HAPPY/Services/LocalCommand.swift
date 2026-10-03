@@ -7,6 +7,7 @@ public enum LocalCommand: Equatable, Sendable {
     case remember(String)
     case showMemory
     case forgetAll
+    case rememberClipboard
     case time(String?)
     case date
     case math(String)
@@ -42,6 +43,10 @@ public enum LocalCommand: Equatable, Sendable {
         }
         if ["forget everything", "clear memory", "forget all"].contains(bare) {
             return .forgetAll
+        }
+
+        if ["remember my clipboard", "remember clipboard", "save my clipboard", "save my clipboard to memory", "remember what i copied"].contains(bare) {
+            return .rememberClipboard
         }
 
         // Time and date
