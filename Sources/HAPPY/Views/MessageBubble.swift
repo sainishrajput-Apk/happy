@@ -69,8 +69,6 @@ struct MessageBubble: View {
                         .clipShape(RoundedRectangle(cornerRadius: 4))
                     }
                     .buttonStyle(.plain)
-
-                    Spacer()
                 }
                 .padding(.leading, message.role == .assistant ? 28 : 0)
             }
@@ -210,7 +208,7 @@ struct CodeBlockView: View {
         if let language = codeBlock.language, !language.isEmpty {
             return language.lowercased()
         }
-        return "code"
+        return "text"
     }
 
     private func copyCode() {

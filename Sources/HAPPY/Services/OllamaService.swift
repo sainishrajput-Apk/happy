@@ -278,7 +278,7 @@ public enum AIServiceFactory {
         case .mock:
             return MockAIService()
         case .gemini:
-            return FailingAIService(error: .network("Gemini support has not been added yet. Choose Ollama in Settings."))
+            return GeminiService(apiKey: settings.geminiAPIKey, model: settings.geminiModel)
         }
     }
 }
