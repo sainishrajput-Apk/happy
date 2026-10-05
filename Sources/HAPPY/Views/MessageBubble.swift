@@ -23,9 +23,14 @@ struct MessageBubble: View {
                         TypingIndicatorView()
                             .padding(.vertical, 6)
                     } else if !message.content.isEmpty {
-                        MarkdownContentView(markdown: message.content)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .textSelection(.enabled)
+                        if message.isStreaming {
+                            Text(message.content)
+                                .font(.system(size: 13))
+                                .lineSpacing(3)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            MarkdownContentView(markdown: message.content)
+                        }
                     }
 
                     if let error = message.error {

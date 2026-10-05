@@ -83,6 +83,7 @@ public final class ChatViewModel: ObservableObject {
             guard let self else { return }
 
             var accumulatedText = ""
+            var lastFlush = Date.distantPast
             var caughtError: AIError?
 
             do {
@@ -91,8 +92,12 @@ public final class ChatViewModel: ObservableObject {
                     if Task.isCancelled { break }
                     accumulatedText += token
 
-                    if let idx = self.messages.firstIndex(where: { $0.id == assistantMessageId }) {
-                        self.messages[idx].content = accumulatedText
+                    let now = Date()
+                    if now.timeIntervalSince(lastFlush) >= 0.1 {
+                        lastFlush = now
+                        if let idx = self.messages.firstIndex(where: { $0.id == assistantMessageId }) {
+                            self.messages[idx].content = accumulatedText
+                        }
                     }
                 }
 
@@ -106,6 +111,7 @@ public final class ChatViewModel: ObservableObject {
             }
 
             if let idx = self.messages.firstIndex(where: { $0.id == assistantMessageId }) {
+                self.messages[idx].content = accumulatedText
                 self.messages[idx].isStreaming = false
                 if let caughtError {
                     self.messages[idx].error = caughtError
