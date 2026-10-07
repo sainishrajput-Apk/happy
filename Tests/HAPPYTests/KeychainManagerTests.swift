@@ -5,17 +5,17 @@ final class KeychainManagerTests: XCTestCase {
     private var testServiceName: String!
     private var keychain: KeychainManager!
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         testServiceName = "com.happy.test.keychain.\(UUID().uuidString)"
         keychain = KeychainManager(serviceName: testServiceName)
     }
 
-    override func tearDown() {
+    override func tearDown() async throws {
         keychain.deleteAll()
         keychain = nil
         testServiceName = nil
-        super.tearDown()
+        try await super.tearDown()
     }
 
     func testSaveAndRetrieveItem() {
