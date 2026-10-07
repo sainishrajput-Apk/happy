@@ -19,18 +19,18 @@ A fast, native macOS AI assistant that lives one hotkey away, named after my Shi
 
 ## Quick start (everything is free)
 
-Requirements: macOS 14+, Xcode (free from the App Store).
+Requirements: macOS 14+ and Xcode (free from the App Store).
 
-```bash
-# 1. Install Ollama (https://ollama.com/download), then pull a small model
-ollama pull llama3.2:3b
+Install [Ollama](https://ollama.com/download), then pull a small model:
 
-# 2. Build and run
-git clone https://github.com/sainishrajput-Apk/happy.git
-cd happy
-./scripts/bundle.sh
-open build/HAPPY.app
-```
+    ollama pull llama3.2:3b
+
+Then build and run the app:
+
+    git clone https://github.com/sainishrajput-Apk/happy.git
+    cd happy
+    ./scripts/bundle.sh
+    open build/HAPPY.app
 
 The app is ad-hoc signed. If macOS blocks the first launch, right-click it in Finder and choose **Open**.
 
@@ -44,26 +44,57 @@ The app is ad-hoc signed. If macOS blocks the first launch, right-click it in Fi
 | `remember that I prefer short answers` | Saves a note to memory |
 | `remember my clipboard` | Saves what you last copied |
 | `what do you remember?` / `forget everything` | Shows or wipes memory |
-|
-cat > LICENSE <<'EOF'
-MIT License
+| `... using my clipboard` | Attaches clipboard text to that one message |
 
-Copyright (c) 2026 Sainish Singh
+## Architecture
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    Sources/HAPPY/
+    ├── HAPPYApp.swift, AppDelegate.swift   app lifecycle, menu-bar item
+    ├── HotkeyManager.swift                 global shortcut (Carbon)
+    ├── WindowManager.swift                 floating NSPanel, animations
+    ├── Models/                             ChatMessage, AIError, provider config
+    ├── Services/
+    │   ├── AIService.swift                 provider protocol (AsyncThrowingStream)
+    │   ├── OllamaService.swift             streaming SSE client
+    │   ├── GeminiService.swift             streaming SSE client
+    │   ├── LocalCommandService.swift       local tools + memory layer
+    │   ├── MathEvaluator.swift             recursive-descent calculator
+    │   └── MemoryStore.swift, KeychainService
+    ├── ViewModels/                         ChatViewModel, SettingsViewModel (@MainActor)
+    └── Views/                              SwiftUI chat, Markdown, Settings
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Design notes:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+- Providers are swappable behind a single protocol, and the active one is chosen per message from Settings.
+- Streaming updates to the UI are throttled to roughly 10 Hz, and Markdown is rendered only when a reply completes, to keep long answers smooth on older Macs.
+- Swift 6 strict concurrency throughout: view models are `@MainActor`, models are `Sendable`.
+
+## Testing
+
+Run `swift test`. The suite has over 90 unit tests covering stream parsing (including chunks split across reads), error mapping, URL building, settings persistence, the calculator, command parsing and the memory store. No test touches the network.
+
+## Privacy
+
+- With **Ollama**, everything stays on your Mac.
+- With **Gemini**, your messages (and saved memory, if any) are sent to Google. On the free tier, Google may use them to improve its products, so use Ollama for anything private.
+- HAPPY never records the screen or microphone, and it only reads the clipboard when you ask it to.
+
+## Responsible use
+
+HAPPY is a visible, user-driven assistant. It is not designed to hide from other software, and it should not be used where outside assistance is prohibited, such as exams and assessments.
+
+## Limitations
+
+- Small local models can be slow on older Intel Macs and are weaker at facts and math than cloud models.
+- The Settings screen has a few cosmetic rough edges (tracked in the roadmap).
+
+## Roadmap
+
+- [ ] Settings: "Test connection" button
+- [ ] Conversation history
+- [ ] Push-to-talk voice input
+- [ ] Notarized release build
+
+## License
+
+MIT

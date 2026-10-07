@@ -20,7 +20,7 @@ final class KeychainManagerTests: XCTestCase {
 
     func testSaveAndRetrieveItem() {
         let key = "gemini_api_key"
-        let secret = "AIzaSyTestSecretKey_12345"
+        let secret = "test-key-12345"
 
         let saveSuccess = keychain.save(key: key, value: secret)
         XCTAssertTrue(saveSuccess, "Saving to Keychain should succeed")

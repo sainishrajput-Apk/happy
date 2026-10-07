@@ -69,7 +69,7 @@ final class SettingsViewModelTests: XCTestCase {
         XCTAssertEqual(testDefaults.string(forKey: SettingsViewModel.Keys.geminiModel), "gemini-1.5-pro")
 
         // Storing Gemini API key should update Keychain
-        let secretKey = "AIzaSySecretGeminiAPIKey"
+        let secretKey = "test-gemini-key"
         viewModel.geminiAPIKey = secretKey
 
         // Direct keychain check using test service name
