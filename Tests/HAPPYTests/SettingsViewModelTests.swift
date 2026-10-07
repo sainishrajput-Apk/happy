@@ -3,14 +3,14 @@ import XCTest
 
 @MainActor
 final class SettingsViewModelTests: XCTestCase {
-    private var testSuiteName: String!
-    private var testDefaults: UserDefaults!
-    private var testServiceName: String!
-    private var testKeychain: KeychainManager!
+    private nonisolated(unsafe) var testSuiteName: String!
+    private nonisolated(unsafe) var testDefaults: UserDefaults!
+    private nonisolated(unsafe) var testServiceName: String!
+    private nonisolated(unsafe) var testKeychain: KeychainManager!
     private var viewModel: SettingsViewModel!
 
-    override func setUp() async throws {
-        try await super.setUp()
+    override func setUp() {
+        super.setUp()
         testSuiteName = "com.happy.test.settings.\(UUID().uuidString)"
         testDefaults = UserDefaults(suiteName: testSuiteName)!
         testServiceName = "com.happy.test.keychain.\(UUID().uuidString)"
@@ -19,7 +19,7 @@ final class SettingsViewModelTests: XCTestCase {
         viewModel = SettingsViewModel(userDefaults: testDefaults, keychain: testKeychain)
     }
 
-    override func tearDown() async throws {
+    override func tearDown() {
         testKeychain.deleteAll()
         testDefaults.removePersistentDomain(forName: testSuiteName)
         viewModel = nil
@@ -27,7 +27,7 @@ final class SettingsViewModelTests: XCTestCase {
         testDefaults = nil
         testServiceName = nil
         testSuiteName = nil
-        try await super.tearDown()
+        super.tearDown()
     }
 
     func testDefaultSettings() {
